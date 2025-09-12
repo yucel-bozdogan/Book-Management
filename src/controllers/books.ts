@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
-import { Book } from '../models/book';
+import { BookService } from '../services/book';
 
 export class BooksController {
-    
+    private bookService = new BookService();
+
     async getAllBooks(req: Request, res: Response) {
         try {
-            const books = await Book.find();
+            const books = await this.bookService.getAllBooks();
             res.status(200).json(books);
         } catch (error) {
             res.status(500).json({ message: 'Kitaplar getirilirken hata oluştu' });
@@ -14,7 +15,7 @@ export class BooksController {
 
     async getBookById(req:Request,res:Response) {
         try {
-            const book = await Book.findById(req.params.id);
+            const book = await this.bookService.getBookById(req.params.id);
             res.status(200).json(book);
         } catch(error) {
             res.status(500).json({ message: 'Kitap bulunurken hata oluştu' });
@@ -24,7 +25,7 @@ export class BooksController {
 
     async createBook(req: Request, res: Response) {
         try { 
-            const book = await Book.create(req.body);
+            const book = await this.bookService.createBook(req.body);
             res.status(201).json(book);
         } catch(error) {
             res.status(500).json({ message: 'Kitap eklenirken hata oluştu' });
@@ -32,7 +33,7 @@ export class BooksController {
     }
     async deleteBook(req: Request, res: Response) {
         try {
-            const book = await Book.findByIdAndDelete(req.params.id);
+            const book = await this.bookService.deleteBook(req.params.id);
             res.status(200).json(book);
         } catch(error) {
             res.status(500).json({ message: 'Kitap silinirken hata oluştu' });
@@ -41,11 +42,11 @@ export class BooksController {
 
     async updateBook(req: Request, res: Response) {
         try {
-            const book = await Book.findByIdAndUpdate(
+            const book = await this.bookService.updateBook(
                 req.params.id, 
                 req.body, 
-                { new: true, runValidators: true }
-            );
+                 );
+            
             res.status(200).json(book);
         } catch(error) {
             res.status(500).json({ message: 'Kitap güncellenirken hata oluştu' });
