@@ -10,7 +10,7 @@ export class BooksRepository {
         return await Book.findById(id);
     }
 
-    async create(bookData: Partial<IBook>) {
+    async create(bookData: IBook) {
         return await Book.create(bookData);
     }
 

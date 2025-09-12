@@ -22,7 +22,7 @@ export class BookService {
         
     }
 
-    async createBook(bookData: Partial<IBook>) {
+    async createBook(bookData: IBook) {
         if (bookData.title === 'Yücel' || bookData.title === 'Kaan') {
             throw new Error('Yücel kitabı oluşturulamaz');
         }
