@@ -2,8 +2,10 @@ import { Book, IBook } from '../models/book';
 
 export class BooksRepository {
     
-    async findAll() {
-        return await Book.find();
+    async findAll(page:number,limit:number) {
+        const skip = (page - 1) * limit;
+        return await Book.find().skip(skip).limit(limit);
+        // skip ilk n kaydı atlar
     }
 
     async findById(id: string) {
@@ -26,6 +28,7 @@ export class BooksRepository {
         const result = await Book.findByIdAndDelete(id);
         return !!result; 
     }
+   
 }
 
 
