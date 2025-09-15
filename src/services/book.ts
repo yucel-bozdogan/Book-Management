@@ -2,11 +2,8 @@ import { Book, IBook } from '../models/book';
 import { BooksRepository } from '../repositories/books';
 
 export class BookService {
-    private booksRepository = new BooksRepository();
-
-    constructor() {
-        this.booksRepository = new BooksRepository();
-    }
+    booksRepository = new BooksRepository();
+   
 
     async getAllBooks(page:number,limit?:number) {
         
@@ -47,14 +44,55 @@ export class BookService {
 
 
     async createBook(bookData: IBook) {
-        if (bookData.title === 'Yücel' || bookData.title === 'Kaan') {
-            throw new Error('Yücel kitabı oluşturulamaz');
+        const exist = await this.booksRepository.existByAuthorAndTitle(bookData.author,bookData.title);
+        const price = bookData.price;
+        if(bookData.price < 0) {
+            throw new Error('Fiyat 0\'dan küçük olamaz');
         }
-        return await this.booksRepository.create(bookData);
+       
+        if (exist) {
+            throw new Error('Bu yazar ve başlık ile kitap zaten mevcut');
+        }
+        bookData.price = Math.round(price*100)/100;
+            return await this.booksRepository.create(bookData);
+        
     }
 
     async updateBook(id: string, bookData: Partial<IBook>) {
-        return await this.booksRepository.update(id, bookData);
-        
+        try {
+            
+            const currentBook = await this.booksRepository.findById(id);
+            if (!currentBook) {
+                throw new Error('Kitap bulunamadı');
+            }
+
+            
+            if (bookData.price !== undefined) {
+                const newPrice = bookData.price;
+                if (typeof newPrice !== 'number' || !Number.isFinite(newPrice)) {
+                    throw new Error('Fiyat geçerli bir sayı olmalı');
+                }
+                if (newPrice < 0) {
+                    throw new Error('Fiyat 0\'dan küçük olamaz');
+                }
+                
+                
+            }
+            if (bookData.author || bookData.title) {
+                const newAuthor = bookData.author || currentBook.author;
+                const newTitle = bookData.title || currentBook.title;
+                // book data author ve title değişiyorsa yeniyi kullan değişmiyorsa eskiyi kullan
+                
+                const exist = await this.booksRepository.existByAuthorAndTitle(newAuthor, newTitle, id);
+                if (exist) {
+                    throw new Error('Bu yazar ve başlık kombinasyonu zaten mevcut');
+                }
+            }
+
+            return await this.booksRepository.update(id, bookData);
+        } catch (error) {
+            throw new Error(`Kitap güncellenirken hata oluştu: ${error.message}`);
+        }
     }
+
 }

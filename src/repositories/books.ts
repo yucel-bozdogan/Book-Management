@@ -1,11 +1,12 @@
 import { Book, IBook } from '../models/book';
+import { Types } from 'mongoose';
 
 export class BooksRepository {
     
     async findAll(page:number,limit:number) {
         const skip = (page - 1) * limit;
         return await Book.find().skip(skip).limit(limit);
-        // skip ilk n kaydı atlar
+        
     }
 
     async findById(id: string) {
@@ -21,6 +22,7 @@ export class BooksRepository {
             id, 
             bookData, 
             { new: true, runValidators: true }
+            
         );
     }
 
@@ -28,8 +30,12 @@ export class BooksRepository {
         const result = await Book.findByIdAndDelete(id);
         return !!result; 
     }
-   
+    async existByAuthorAndTitle(author:string,title:string,excludeId?:string) {
+        const filter:any={author,title};
+        if (excludeId) {
+            filter._id = { $ne: excludeId };  //exclude id güncelliyeceğim id $ne: = değilse
+    }                                           //yolladığım id filterimin eşleştiği id’ye eşit değilse bu fonksiyon çalışsın
+        return await Book.exists( filter );  
 }
-
-
+}
 
