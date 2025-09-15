@@ -33,20 +33,20 @@ export class Logger {
             }
           }
         
-          async logInfo(message: string, source: string, processId?: string, userId?: string, meta?: Record<string, any>) {
-            await this.log("info", message, source, processId, userId, meta); //sor
+          async logInfo(message: string, source: string, processId?: string, userId?: string, metadata?: Record<string, any>) {
+            await this.log("info", message, source, processId, userId, metadata);
           }
         
-          async logWarn(message: string, source: string, processId?: string, userId?: string, meta?: Record<string, any>) {
-            await this.log("warn", message, source, processId, userId, meta);
+          async logWarn(message: string, source: string, processId?: string, userId?: string, metadata?: Record<string, any>) {
+            await this.log("warn", message, source, processId, userId, metadata);
           }
         
-          async logError(message: string, source: string, processId?: string, userId?: string, meta?: Record<string, any>) {
-            await this.log("error", message, source, processId, userId, meta);
+          async logError(message: string, source: string, processId?: string, userId?: string, metadata?: Record<string, any>) {
+            await this.log("error", message, source, processId, userId, metadata);
           }
         
-          async logDebug(message: string, source: string, processId?: string, userId?: string, meta?: Record<string, any>) {
-            await this.log("debug", message, source, processId, userId, meta);
+          async logDebug(message: string, source: string, processId?: string, userId?: string, metadata?: Record<string, any>) {
+            await this.log("debug", message, source, processId, userId, metadata);
           }
         }
 export const logger = Logger.getInstance();

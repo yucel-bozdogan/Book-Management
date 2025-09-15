@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { notFound } from './middlewares/notFound';
 import { serverError } from './middlewares/error';
+import { processIdGeneration } from './middlewares/processIdGeneration';
 import routes from './routes';
 import { baseLogger } from './utils/baseLogger';
 import { logger } from './utils/logger';
@@ -20,17 +21,22 @@ mongoose.connect(MONGODB_URI) // mongo db bağlantısı yapılıyor
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ProcessId middleware'ini health check'ten önce uygula
+app.use(processIdGeneration);
+
 //health check
 app.get('/get/health', async (req, res) => {
   try {
     const dbState = mongoose.connection.readyState;
     const dbStatus = dbState === 1 ? 'connected' : 'disconnected';
+    logger.logInfo('Health check yapıldı', 'health-check', res.locals.processId);
     res.status(200).json({ 
       status: 'sağlıklı',
       database: dbStatus,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
+    logger.logError('Health check sırasında hata oluştu', 'health-check', res.locals.processId);
     res.status(500).json({ 
       status: 'hatalı',
       database: 'disconnected',
