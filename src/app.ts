@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { notFound } from './middlewares/notFound';
 import { serverError } from './middlewares/error';
 import routes from './routes';
+import { baseLogger } from './utils/baseLogger';
 import { logger } from './utils/logger';
 
 dotenv.config();
@@ -12,8 +13,8 @@ const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGO_DB_URI; // env dosyasından mongo db url alınıyor
 
 mongoose.connect(MONGODB_URI) // mongo db bağlantısı yapılıyor
-.then(() => logger.info('MongoDB baglandi'))
-.catch(() => logger.error('MongoDB bağlantı hatası'));
+.then(() => logger.logInfo('MongoDB baglandi', 'database'))
+.catch(() => logger.logError('MongoDB bağlantı hatası', 'database'));
 
 // Middleware
 app.use(express.json());
@@ -45,5 +46,5 @@ app.use(notFound);
 app.use(serverError);
 
 app.listen(PORT, () => {
-  logger.info(` Sunucu http://localhost:${PORT} adresinde calisiyor`);
+  logger.logInfo(`Sunucu http://localhost:${PORT} adresinde calisiyor`, 'server');
 });
