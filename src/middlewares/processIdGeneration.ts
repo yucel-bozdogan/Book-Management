@@ -1,6 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
 import { v4 as uuidv4 } from "uuid";
-import { logger } from '../utils/logger';
+import { log } from '../utils/baseLogger';
 
 export function processIdGeneration(req: Request, res: Response, next: NextFunction) {
     try {
@@ -8,7 +8,7 @@ export function processIdGeneration(req: Request, res: Response, next: NextFunct
         res.locals.processId = processId; // locals içine koyduk
         next();
     } catch (error: any) {
-         logger.logError("Process ID oluşturulamadı", "processIdGenerationMiddleware", undefined, undefined, { err: error });
+         log.error("Process ID oluşturulamadı", { source: "processIdGenerationMiddleware", err: error });
         res.status(500).json({ error: "Process ID generation failed" });
     }
 }

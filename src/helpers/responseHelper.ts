@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { ResponseModel } from "../models/responseModel";
+import { ResponseModel } from "../utils/types/responseModel";
 
 // 400 Bad Request
 export const badRequest = <T>(res: Response, data: ResponseModel<T>) =>
