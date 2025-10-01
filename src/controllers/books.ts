@@ -4,6 +4,7 @@ import { log } from '../utils/baseLogger';
 import { IBook } from '../models/book';
 import { ResponseModel } from '../utils/types/responseModel';
 import { httpOk, badRequest, notFound, internalServerError } from '../helpers/responseHelper';
+import { Types } from 'mongoose';
 export class BooksController {
     private bookService = new BookService();
 
@@ -62,7 +63,14 @@ export class BooksController {
     async createBook(req: Request, res: Response) {
         try { 
             log.info(`Kitap oluşturuluyor - Veri: ${JSON.stringify(req.body)}`, { source: 'controller' });
-            const book = await this.bookService.createBook(req.body);
+            
+            // author string'ini ObjectId'ye çevir
+            const bookData: IBook = {
+                ...req.body,
+                author: new Types.ObjectId(req.body.author)
+            };
+            
+            const book = await this.bookService.createBook(bookData);
             log.info(`Kitap başarıyla oluşturuldu - ID: ${book._id}`, { source: 'controller' });
             return res.status(201).json(new ResponseModel(true, book, null, 'Kitap başarıyla oluşturuldu'));
         } catch(error) {
@@ -88,10 +96,14 @@ export class BooksController {
     async updateBook(req: Request, res: Response) {
         try {
             log.info(`Kitap güncelleniyor - ID: ${req.params.id} - Veri: ${JSON.stringify(req.body)}`, { source: 'controller' });
-            const book = await this.bookService.updateBook(
-                req.params.id, 
-                req.body as Partial<IBook> // interface kullanarak type safety sağlandı artık mognoose a bağımlı değil bir interface içerisinde tanımladık
-                 );
+            
+            // Eğer author güncelleniyorsa string'i ObjectId'ye çevir
+            const updateData: Partial<IBook> = { ...req.body };
+            if (req.body.author) {
+                updateData.author = new Types.ObjectId(req.body.author);
+            }
+            
+            const book = await this.bookService.updateBook(req.params.id, updateData);
             if (!book) {
                 return notFound(res);
             }

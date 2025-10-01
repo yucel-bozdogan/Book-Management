@@ -30,12 +30,12 @@ export class BooksRepository {
         const result = await Book.findByIdAndDelete(id);
         return !!result; 
     }
-    async existByAuthorAndTitle(author:string,title:string,excludeId?:string) {
-        const filter:any={author,title};
+    async existByAuthorAndTitle(author: Types.ObjectId, title: string, excludeId?: string) {
+        const filter: any = { author, title };
         if (excludeId) {
             filter._id = { $ne: excludeId };  //exclude id güncelliyeceğim id $ne: = değilse
-    }                                           //yolladığım id filterimin eşleştiği id’ye eşit değilse bu fonksiyon çalışsın
-        return await Book.exists( filter );  
-}
+        }                                           //yolladığım id filterimin eşleştiği id'ye eşit değilse bu fonksiyon çalışsın
+        return await Book.exists(filter);  
+    }
 }
 

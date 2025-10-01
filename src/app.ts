@@ -8,6 +8,7 @@ import routes from './routes';
 import { logger } from './utils/baseLogger';
 import { log } from './utils/baseLogger';
 
+
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;

@@ -1,5 +1,6 @@
 import { Book, IBook } from '../models/book';
 import { BooksRepository } from '../repositories/books';
+import { Types } from 'mongoose'; 
 
 export class BookService {
     booksRepository = new BooksRepository();
@@ -44,7 +45,8 @@ export class BookService {
 
 
     async createBook(bookData: IBook) {
-        const exist = await this.booksRepository.existByAuthorAndTitle(bookData.author,bookData.title);
+        // bookData.author artık ObjectId tipinde, string değil
+        const exist = await this.booksRepository.existByAuthorAndTitle(bookData.author, bookData.title);
         const price = bookData.price;
         if(bookData.price < 0) {
             throw new Error('Fiyat 0\'dan küçük olamaz');
@@ -54,8 +56,7 @@ export class BookService {
             throw new Error('Bu yazar ve başlık ile kitap zaten mevcut');
         }
         bookData.price = Math.round(price*100)/100;
-            return await this.booksRepository.create(bookData);
-        
+        return await this.booksRepository.create(bookData);
     }
 
     async updateBook(id: string, bookData: Partial<IBook>) {

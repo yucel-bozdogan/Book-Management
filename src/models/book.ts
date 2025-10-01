@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 
 
 export interface IBook extends Document {
     description: string;
-    author: string;
+    author: Types.ObjectId; // author u id olarak alıcam
     price: number;
     title: string;
   }
@@ -14,7 +14,8 @@ export const BookSchema = new mongoose.Schema({
         required: true
     },
     author: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Author',
         required: true
     },
     price: {
