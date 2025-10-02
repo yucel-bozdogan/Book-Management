@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import helmet from 'helmet';
 import { notFound } from './middlewares/notFound';
 import { serverError } from './middlewares/error';
 import { processIdGeneration } from './middlewares/processIdGeneration';
@@ -19,6 +20,7 @@ mongoose.connect(MONGODB_URI) // mongo db bağlantısı yapılıyor
 .catch(() => log.error('MongoDB bağlantı hatası', { source: 'database' }));
 
 // Middleware
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
