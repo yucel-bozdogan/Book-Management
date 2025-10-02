@@ -1,12 +1,12 @@
 import mongoose, { Document, Types } from 'mongoose';
 
-
 export interface IBook extends Document {
     description: string;
     author: Types.ObjectId; // author u id olarak alıcam
+    category: Types.ObjectId; // category id olarak alıcam
     price: number;
     title: string;
-  }
+}
 
 export const BookSchema = new mongoose.Schema({
     description: {
@@ -18,6 +18,11 @@ export const BookSchema = new mongoose.Schema({
         ref: 'Author',
         required: true
     },
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true
+    },
     price: {
         type: Number,
         required: true
@@ -25,8 +30,9 @@ export const BookSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true
-    },
-    
-}
-);
+    }
+}, {
+    timestamps: true
+});
+
 export const Book = mongoose.model<IBook>("Book", BookSchema);

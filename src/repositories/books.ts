@@ -5,12 +5,17 @@ export class BooksRepository {
     
     async findAll(page:number,limit:number) {
         const skip = (page - 1) * limit;
-        return await Book.find().skip(skip).limit(limit);
-        
+        return await Book.find()
+            .populate('author', 'name email')
+            .populate('category', 'name')
+            .skip(skip)
+            .limit(limit);
     }
 
     async findById(id: string) {
-        return await Book.findById(id);
+        return await Book.findById(id)
+            .populate('author', 'name email')
+            .populate('category', 'name');
     }
 
     async create(bookData: IBook) {
@@ -22,8 +27,9 @@ export class BooksRepository {
             id, 
             bookData, 
             { new: true, runValidators: true }
-            
-        );
+        )
+        .populate('author', 'name email')
+        .populate('category', 'name');
     }
 
     async delete(id: string) {

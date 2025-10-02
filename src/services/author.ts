@@ -102,6 +102,13 @@ export class AuthorService {
                     });
                     throw new Error('verilen id ile yazar bulunamadı');
                 }
+
+                // Gerçek silme işlemi
+                const deleteResult = await this.authorsRepository.delete(id);
+                if (!deleteResult) {
+                    throw new Error('Yazar silinirken hata oluştu');
+                }
+
                 log.info('yazar başarı ile silindi',{
                     source: 'author-service.deleteAuthorById',
                     authorId: id

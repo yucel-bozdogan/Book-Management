@@ -67,7 +67,8 @@ export class BooksController {
             // author string'ini ObjectId'ye çevir
             const bookData: IBook = {
                 ...req.body,
-                author: new Types.ObjectId(req.body.author)
+                author: new Types.ObjectId(req.body.author),
+                
             };
             
             const book = await this.bookService.createBook(bookData);

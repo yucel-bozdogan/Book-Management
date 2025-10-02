@@ -1,9 +1,13 @@
 import { Book, IBook } from '../models/book';
 import { BooksRepository } from '../repositories/books';
+import { CategoryService } from './category';
+import { AuthorService } from './author';
 import { Types } from 'mongoose'; 
 
 export class BookService {
     booksRepository = new BooksRepository();
+    categoryService = new CategoryService();
+    authorService = new AuthorService();
    
 
     async getAllBooks(page:number,limit?:number) {
@@ -45,6 +49,30 @@ export class BookService {
 
 
     async createBook(bookData: IBook) {
+        // Author validation
+        if (!bookData.author || !Types.ObjectId.isValid(bookData.author)) {
+            throw new Error('Geçerli bir yazar ID gerekli');
+        }
+
+        // Author exists kontrolü
+        try {
+            await this.authorService.getAuthorById(bookData.author.toString());
+        } catch (error) {
+            throw new Error('Belirtilen yazar bulunamadı');
+        }
+
+        // Category validation
+        if (!bookData.category || !Types.ObjectId.isValid(bookData.category)) {
+            throw new Error('Geçerli bir kategori ID gerekli');
+        }
+
+        // Category exists kontrolü
+        try {
+            await this.categoryService.getCategoryById(bookData.category.toString());
+        } catch (error) {
+            throw new Error('Belirtilen kategori bulunamadı');
+        }
+
         // bookData.author artık ObjectId tipinde, string değil
         const exist = await this.booksRepository.existByAuthorAndTitle(bookData.author, bookData.title);
         const price = bookData.price;
@@ -67,6 +95,33 @@ export class BookService {
                 throw new Error('Kitap bulunamadı');
             }
 
+            // Author validation
+            if (bookData.author !== undefined) {
+                if (!bookData.author || !Types.ObjectId.isValid(bookData.author)) {
+                    throw new Error('Geçerli bir yazar ID gerekli');
+                }
+
+                // Author exists kontrolü
+                try {
+                    await this.authorService.getAuthorById(bookData.author.toString());
+                } catch (error) {
+                    throw new Error('Belirtilen yazar bulunamadı');
+                }
+            }
+
+            // Category validation
+            if (bookData.category !== undefined) {
+                if (!bookData.category || !Types.ObjectId.isValid(bookData.category)) {
+                    throw new Error('Geçerli bir kategori ID gerekli');
+                }
+
+                // Category exists kontrolü
+                try {
+                    await this.categoryService.getCategoryById(bookData.category.toString());
+                } catch (error) {
+                    throw new Error('Belirtilen kategori bulunamadı');
+                }
+            }
             
             if (bookData.price !== undefined) {
                 const newPrice = bookData.price;
