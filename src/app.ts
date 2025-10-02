@@ -8,6 +8,10 @@ import { processIdGeneration } from './middlewares/processIdGeneration';
 import routes from './routes';
 import { logger } from './utils/baseLogger';
 import { log } from './utils/baseLogger';
+import cors from 'cors'; 
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
+import { requestLogger } from './middlewares/requestLogger';
 
 
 dotenv.config();
@@ -21,12 +25,25 @@ mongoose.connect(MONGODB_URI) // mongo db bağlantısı yapılıyor
 
 // Middleware
 app.use(helmet());
+app.use(cors());
+app.use(compression());
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 dakika
+  max: 100, // Her IP için 15 dakikada maksimum 100 istek
+  message: {
+    error: 'Çok fazla istek gönderdiniz, lütfen 15 dakika sonra tekrar deneyin.',
+    retryAfter: '15 dakika'
+  },
+  standardHeaders: true, // Rate limit bilgilerini header'larda göster
+  legacyHeaders: false, // X-RateLimit-* header'larını devre dışı bırak
+});
+app.use(limiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ProcessId middleware'ini health check'ten önce uygula
 app.use(processIdGeneration);
-
+app.use(requestLogger);
 //health check
 app.get('/get/health', async (req, res) => {
   try {
