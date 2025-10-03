@@ -2,7 +2,8 @@ import pino from "pino";
 import logModel from "../models/log"; // artık mognoose buradan type interface oluşturcak
 
 // singelton değil ama return olmadığından bir kere üretiyoruz 
-
+const isDevelopment = process.env.NODE_ENV === 'development';
+const isProduction = process.env.NODE_ENV === 'production';
 const dbTransport = async (logData: Record<string, unknown>) => {
   // db transport fonksiyonu asenkron içine LogData atıcam anahtarı string tipi belli değil 
   try {
@@ -15,6 +16,7 @@ const dbTransport = async (logData: Record<string, unknown>) => {
       message: logData.message as string,
       source: logData.source as string,              
       processId: logData.processId as string,  //aldığım LogDatayı logModel nesnesine atıyorum typescript bunu ınterface olarak alcak
+      traceId: logData.traceId as string,
       userId: logData.userId as string,
       metadata: logData.metadata || {},
       timestamp: new Date()
@@ -25,32 +27,86 @@ const dbTransport = async (logData: Record<string, unknown>) => {
 };
 
 export const logger = pino({
-  level: "info",
-  transport: {
+  level: process.env.LOG_LEVEL || "info",
+  transport: isDevelopment ? {
     target: "pino-pretty",
     options: {
-      colorize: true,             // konsola yazmak için pino sınıfından yeni bi intence yaratıyorum
+      colorize: true,
       translateTime: "SYS:standard",
       ignore: "pid,hostname",
-    },
+      singleLine: true, // Yeni eklenen
+      messageFormat: '{levelLabel} {msg}', // Yeni eklenen
+      customPrettifiers: {
+        time: (timestamp: string) => `🕐 ${timestamp}`,
+        level: (level: string) => `📊 ${level.toUpperCase()}`
+      }
+    }
+  } : undefined, // Production'da transport yok (JSON)
+  timestamp: pino.stdTimeFunctions.isoTime, // Yeni eklenen
+  formatters: {
+    level: (label: string) => ({ level: label }) // Yeni eklenen
   }
 });
 
 export const log = {
-  info: (message: string, meta?: Record<string, unknown>) => { //info fonksiyonu log içinde mesaj string alsın bir de diğerlerinden ne verirse anahtarı string veri tipi her şey olabilir
-    logger.info(meta, message); // pinonun log seviyesine göre meta ve messageyi atıyorum
-    dbTransport({ level: 'info', message, source: meta?.source || 'application', processId: meta?.processId, userId: meta?.userId, metadata: meta, time: Date.now() });
-  },// level bilgisini info al mesajı al   source u meta içinde varsa al yoksa application   
+  info: (message: string, meta?: Record<string, unknown>) => {
+    const logData = {
+      level: 'info',
+      message,
+      source: meta?.source || 'application',
+      processId: meta?.processId,
+      traceId: meta?.traceId, // Yeni eklenen
+      userId: meta?.userId,
+      metadata: meta,
+      timestamp: new Date().toISOString() // Yeni eklenen
+    };
+    
+    logger.info(meta, message);
+    dbTransport(logData);
+  },
   error: (message: string, meta?: Record<string, unknown>) => {
+    const logData = {
+      level: 'error',
+      message,
+      source: meta?.source || 'application',
+      processId: meta?.processId,
+      traceId: meta?.traceId, 
+      userId: meta?.userId,
+      metadata: meta,
+      timestamp: new Date().toISOString() 
+    };
+    
     logger.error(meta, message);
-    dbTransport({ level: 'error', message, source: meta?.source || 'application', processId: meta?.processId, userId: meta?.userId, metadata: meta, time: Date.now() });
+    dbTransport(logData);
   },
   warn: (message: string, meta?: Record<string, unknown>) => {
+    const logData = {
+      level: 'warn',
+      message,
+      source: meta?.source || 'application',
+      processId: meta?.processId,
+      traceId: meta?.traceId, 
+      userId: meta?.userId,
+      metadata: meta,
+      timestamp: new Date().toISOString() 
+    };
+    
     logger.warn(meta, message);
-    dbTransport({ level: 'warn', message, source: meta?.source || 'application', processId: meta?.processId, userId: meta?.userId, metadata: meta, time: Date.now() });
+    dbTransport(logData);
   },
   debug: (message: string, meta?: Record<string, unknown>) => {
+    const logData = {
+      level: 'debug',
+      message,
+      source: meta?.source || 'application',
+      processId: meta?.processId,
+      traceId: meta?.traceId, 
+      userId: meta?.userId,
+      metadata: meta,
+      timestamp: new Date().toISOString() 
+    };
+    
     logger.debug(meta, message);
-    dbTransport({ level: 'debug', message, source: meta?.source || 'application', processId: meta?.processId, userId: meta?.userId, metadata: meta, time: Date.now() });
+    dbTransport(logData);
   }
 };

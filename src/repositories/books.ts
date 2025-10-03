@@ -6,9 +6,9 @@ export class BooksRepository {
     async findAll(page:number,limit:number) {
         const skip = (page - 1) * limit;
         return await Book.find()
-            .populate('author', 'name email')
+            .populate('author', 'name email') // authordan name ve email i döndğr sadece id yi değil
             .populate('category', 'name')
-            .skip(skip)
+            .skip(skip) // chain metod skip ve limite göre getircek
             .limit(limit);
     }
 
@@ -26,9 +26,9 @@ export class BooksRepository {
         return await Book.findByIdAndUpdate(
             id, 
             bookData, 
-            { new: true, runValidators: true }
+            { new: true, runValidators: true } // yeni veri dönsün ve validatörleri çalıştırsın
         )
-        .populate('author', 'name email')
+        .populate('author', 'name email')   // chain olduğu için 
         .populate('category', 'name');
     }
 

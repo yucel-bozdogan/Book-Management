@@ -17,6 +17,7 @@ export function requestLogger(req: Request, res: Response, next: NextFunction) {
     const logData = {
       source: 'requestLogger',
       processId: res.locals.processId,
+      traceId: (req as any).traceId,
       method,
       url: originalUrl,
       statusCode,
@@ -24,6 +25,8 @@ export function requestLogger(req: Request, res: Response, next: NextFunction) {
       ip,
       userAgent: userAgent.substring(0, 100) // User-Agent'ı kısalt
     };
+    
+    console.log('🔍 Request Logger - TraceId:', (req as any).traceId); // Debug log
     
     if (logLevel === 'error') {
       log.error(`${method} ${originalUrl} - ${statusCode} - ${duration}ms`, logData);

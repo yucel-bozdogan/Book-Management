@@ -10,3 +10,4 @@ export function serverError (err:any,req:Request,res:Response) {
       error: 'Sunucu hatası'
     });
   }
+ 

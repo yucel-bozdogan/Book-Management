@@ -6,7 +6,7 @@ import { ResponseModel } from '../utils/types/responseModel';
 import { httpOk, badRequest, notFound, internalServerError } from '../helpers/responseHelper';
 import { Types } from 'mongoose';
 export class BooksController {
-    private bookService = new BookService();
+    private bookService = new BookService(); // ben book servisi kullanacağım
 
     public validatePagination(page: number, limit: number): { isValid: boolean; error?: string } {
         if (!page || isNaN(page)) {

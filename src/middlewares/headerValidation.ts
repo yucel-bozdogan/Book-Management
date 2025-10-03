@@ -29,7 +29,7 @@ export const headerValidation = (req: Request, res: Response, next: NextFunction
 }
 
         res.locals.platform = xplatform; //x platform header ını local değişkenine atıyoruz
-        return next();
+        return next(); // okey routes a göre sonraki adıma geçebilirsin
     } catch (e: any) { //hata fırlat
         log.error(`Unknown error: ${e}`, { source: "headerValidation" });
         return responseHelper.badRequest(res, new ResponseModel<string>
